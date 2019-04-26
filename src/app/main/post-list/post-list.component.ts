@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Inject } from '@angular/core'
 import { fromEvent, Subscription } from 'rxjs'
 import { take, debounceTime } from 'rxjs/operators'
 import { WINDOW } from 'ngx-window-token'
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common'
 
 import { environment } from 'src/environments/environment'
 import { LocalStorageService } from 'src/app/local-storage.service'
