@@ -1,0 +1,32 @@
+<div
+    class="post-item p-1 d-flex flex-row"
+    (click)="showPost($event, $event.target, gfyId)"
+>
+    <div
+        class="post-item__img d-flex flex-shrink-0"
+        [ngStyle]="{ 'background-image': 'url(' + post.thumbnail + ')' }"
+    ></div>
+    <div class="d-flex flex-column ml-2">
+        <div class="post-item__title small font-weight-bold mb-1">
+            {{ postTitle }}
+        </div>
+        <div class="mt-auto">
+            <a
+                target="_blank"
+                rel="noreferrer"
+                class="badge px-2 post-item__badge-reddit mr-1"
+                [href]="'https://www.reddit.com' + post.permalink"
+            >
+                Reddit
+            </a>
+            <a
+                target="_blank"
+                rel="noreferrer"
+                class="badge px-2 post-item__badge-gfycat"
+                [href]="'https://gfycat.com/' + gfyId"
+            >
+                Gfycat
+            </a>
+        </div>
+    </div>
+</div>

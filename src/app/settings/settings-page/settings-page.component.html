@@ -1,0 +1,26 @@
+<form [formGroup]="form" (submit)="save(form)" (reset)="reset($event, form)">
+    <div class="form-group">
+        <label for="form-url">Subreddit RSS URL</label>
+        <input
+            id="form-url"
+            type="text"
+            class="form-control"
+            formControlName="url"
+            [ngClass]="{
+                'is-invalid': form.get('url').touched && form.get('url').invalid
+            }"
+        />
+        <small class="form-text text-muted"
+            >Too complex? Just change "RocketLeague" to the subreddit of your
+            choice.</small
+        >
+    </div>
+
+    <button type="reset" class="btn btn-secondary btn-block">
+        Reset Settings
+    </button>
+    <button type="submit" class="btn btn-primary btn-block">
+        <span *ngIf="showSavedMessage">Saved!</span>
+        <span *ngIf="!showSavedMessage">Save Settings</span>
+    </button>
+</form>

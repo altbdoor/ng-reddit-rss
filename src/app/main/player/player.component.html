@@ -1,0 +1,24 @@
+<div class="modal-backdrop show"></div>
+<div
+    class="modal show d-flex align-items-center justify-content-center"
+    (click)="dismiss($event.target)"
+>
+    <div class="position-relative">
+        <a
+            class="player__close position-absolute btn btn-danger btn-lg py-0"
+            [routerLink]="[{ outlets: { modal: null } }]"
+            >&times;</a
+        >
+        <video
+            class="player__video p-2"
+            [poster]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.jpg'"
+            [src]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.mp4'"
+            preload="auto"
+            controls
+            loop
+            [muted]="true"
+            playsinline
+            autoplay
+        ></video>
+    </div>
+</div>

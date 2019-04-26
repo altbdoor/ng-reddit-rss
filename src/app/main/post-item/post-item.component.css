@@ -1,0 +1,41 @@
+.post-item {
+    cursor: pointer;
+}
+
+.post-item__img {
+    width: 120px;
+    height: 68px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #000;
+}
+
+.post-item__title {
+    max-height: 2rem;
+    overflow: hidden;
+}
+
+.post-item__badge-reddit {
+    color: #fff;
+    background-color: #ff4500;
+}
+
+.post-item__badge-reddit[href]:hover,
+.post-item__badge-reddit[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #cc3700;
+}
+
+.post-item__badge-gfycat {
+    color: #fff;
+    background-color: #2475ff;
+}
+
+.post-item__badge-gfycat[href]:hover,
+.post-item__badge-gfycat[href]:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0059f0;
+}

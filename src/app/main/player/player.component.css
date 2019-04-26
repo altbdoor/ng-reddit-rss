@@ -1,0 +1,15 @@
+.player__video {
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.player__close {
+    top: 0.5rem;
+    right: 0.5rem;
+    border-radius: 0 0 0 0.2rem;
+    opacity: 0.2;
+}
+
+.player__close:hover {
+    opacity: 1;
+}
