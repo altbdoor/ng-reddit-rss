@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core'
+import { DOCUMENT } from '@angular/common'
 import { fromEvent, Subscription } from 'rxjs'
 import { take, debounceTime } from 'rxjs/operators'
 import { WINDOW } from 'ngx-window-token'
-import { DOCUMENT } from '@angular/common'
 
 import { environment } from 'src/environments/environment'
 import { LocalStorageService } from 'src/app/local-storage.service'
@@ -29,7 +29,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.api.clearNextId()
+        this.api.clearState()
         this.getPosts()
 
         this.bindScrollHandler()
@@ -58,7 +58,26 @@ export class PostListComponent implements OnInit, OnDestroy {
             .subscribe(
                 (data) => {
                     this.hasMore = data.length > 0
-                    this.postList = [...this.postList, ...data]
+
+                    const existingIdList = this.postList.map(
+                        (post) => `${post.subreddit_id}-${post.id}`
+                    )
+                    const filteredData = data.filter((post: any) => {
+                        let isGfycat = false
+
+                        try {
+                            isGfycat =
+                                post.secure_media.oembed.provider_name.toLowerCase() ===
+                                'gfycat'
+                        } catch (e) {}
+
+                        const postId = `${post.subreddit_id}-${post.id}`
+                        const isExisting = existingIdList.includes(postId)
+
+                        return isGfycat && !isExisting
+                    })
+
+                    this.postList = this.postList.concat(filteredData)
                 },
                 () => {
                     this.error = true
