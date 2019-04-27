@@ -12,13 +12,25 @@
         <video
             class="player__video p-2"
             [poster]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.jpg'"
-            [src]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.mp4'"
             preload="auto"
             controls
             loop
             [muted]="true"
             playsinline
             autoplay
-        ></video>
+        >
+            <!-- <source
+                [src]="'https://giant.gfycat.com/' + gfyId + '.webm'"
+                type="video/webm"
+            />
+            <source
+                [src]="'https://giant.gfycat.com/' + gfyId + '.mp4'"
+                type="video/mp4"
+            /> -->
+            <source
+                [src]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.mp4'"
+                type="video/mp4"
+            />
+        </video>
     </div>
 </div>
