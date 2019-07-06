@@ -1,107 +1,102 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core'
+import { Component, OnInit, Inject } from '@angular/core'
 import { DOCUMENT } from '@angular/common'
-import { fromEvent, Subscription } from 'rxjs'
-import { take, debounceTime } from 'rxjs/operators'
+import { fromEvent, Observable, EMPTY } from 'rxjs'
+import { debounceTime, filter, switchMap, map, finalize, catchError, tap, scan, startWith } from 'rxjs/operators'
 import { WINDOW } from 'ngx-window-token'
+import * as he from 'he'
 
 import { environment } from 'src/environments/environment'
 import { LocalStorageService } from 'src/app/local-storage.service'
 import { ApiService } from 'src/app/api.service'
+import { PostItem } from 'src/app/models/post_item'
+import { RedditData } from 'src/app/models/reddit';
 
 @Component({
     selector: 'app-post-list',
     templateUrl: './post-list.component.html',
     styleUrls: ['./post-list.component.css'],
 })
-export class PostListComponent implements OnInit, OnDestroy {
+export class PostListComponent implements OnInit {
     loading = false
     error = false
     hasMore = true
-    postList = []
+    nextId = ''
 
-    scrollSub: Subscription
+    postList$: Observable<PostItem[]>
 
     constructor(
-        @Inject(WINDOW) private xWindow: Window,
-        @Inject(DOCUMENT) private xDocument: Document,
+        @Inject(WINDOW) private window: Window,
+        @Inject(DOCUMENT) private document: Document,
         private api: ApiService,
         private local: LocalStorageService
     ) {}
 
     ngOnInit() {
-        this.api.clearState()
-        this.getPosts()
-
-        this.bindScrollHandler()
-    }
-
-    ngOnDestroy() {
-        this.scrollSub.unsubscribe()
-    }
-
-    getPosts() {
-        if (this.loading || this.error || !this.hasMore) {
-            return
-        }
-
-        this.loading = true
-        this.error = false
-
         let settings = this.local.get('settings-data')
         if (!settings) {
             settings = environment.defaultSettings
         }
 
-        this.api
-            .getPosts(settings.url)
-            .pipe(take(1))
-            .subscribe(
-                (data) => {
-                    this.hasMore = data.length > 0
+        const scrollEvt$ = fromEvent(this.window, 'scroll').pipe(
+            debounceTime(200),
+            filter(() => {
+                const viewportHeight = this.window.pageYOffset + this.window.innerHeight
+                const pageHeight = this.document.body.clientHeight - 200
+                return viewportHeight >= pageHeight
+            }),
+            filter(() => (!this.loading && !this.error && this.hasMore)),
+        )
 
-                    const existingIdList = this.postList.map(
-                        (post) => `${post.subreddit_id}-${post.id}`
-                    )
-                    const filteredData = data.filter((post: any) => {
-                        let isGfycat = false
-
-                        try {
-                            isGfycat =
-                                post.secure_media.oembed.provider_name.toLowerCase() ===
-                                'gfycat'
-                        } catch (e) {}
-
-                        const postId = `${post.subreddit_id}-${post.id}`
-                        const isExisting = existingIdList.includes(postId)
-
-                        return isGfycat && !isExisting
+        this.postList$ = scrollEvt$.pipe(
+            startWith(0),
+            switchMap(() => {
+                this.loading = true
+                return this.api.getNewPosts(settings.url, this.nextId).pipe(
+                    finalize(() => (this.loading = false)),
+                    catchError(() => {
+                        this.error = true
+                        return EMPTY
                     })
-
-                    this.postList = this.postList.concat(filteredData)
-                },
-                () => {
-                    this.error = true
-                },
-                () => {
-                    this.loading = false
-                }
-            )
+                )
+            }),
+            tap((data) => {
+                this.nextId = data.data.after
+                this.hasMore = !!data.data.after
+            }),
+            map((data) => this.convertPostItem(data)),
+            scan((acc: PostItem[], val) => {
+                const accIdList = acc.map(post => post.id)
+                val = val.filter(post => !accIdList.includes(post.id))
+                return acc.concat(val)
+            }, [])
+        )
     }
 
-    bindScrollHandler() {
-        this.scrollSub = fromEvent(this.xWindow, 'scroll')
-            .pipe(debounceTime(150))
-            .subscribe(() => {
-                if (this.loading || this.error || !this.hasMore) {
-                    return
-                }
+    convertPostItem(data: RedditData): PostItem[] {
+        return data.data.children
+            .map((post) => post.data)
+            .filter((post) => {
+                try {
+                    return post.secure_media.oembed.provider_name.toLowerCase() === 'gfycat'
+                } catch (e) {}
 
-                if (
-                    this.xWindow.pageYOffset + this.xWindow.innerHeight >=
-                    this.xDocument.body.clientHeight - 200
-                ) {
-                    this.getPosts()
-                }
+                return false
+            })
+            .map((post) => {
+                const postId = `${post.subreddit_id}-${post.id}`
+                const thumbnailUrl = post.secure_media.oembed.thumbnail_url
+                const gfyId = thumbnailUrl.replace(
+                    /(.+?thumbs\.gfycat\.com(%2F|\/)|-size_restricted.+)/g,
+                    ''
+                )
+
+                return {
+                    id: postId,
+                    gfyId,
+                    title: he.decode(post.title),
+                    thumbnail: post.thumbnail,
+                    permalink: post.permalink,
+                } as PostItem
             })
     }
 }

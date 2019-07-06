@@ -1,42 +1,21 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
-import { of } from 'rxjs'
-import { take, map, tap, retryWhen, delay } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
+
+import { RedditData } from './models/reddit'
 
 @Injectable({
     providedIn: 'root',
 })
 export class ApiService {
-    nextId = ''
-    hasMore = true
-
     constructor(private http: HttpClient) {}
 
-    clearState() {
-        this.nextId = ''
-        this.hasMore = true
-    }
-
-    getPosts(url: string) {
+    getNewPosts(url: string, nextId: string): Observable<RedditData> {
         const cleanUrl = new URL(url)
-        cleanUrl.searchParams.append('after', this.nextId)
-
-        if (!this.hasMore) {
-            return of([])
-        }
-
+        cleanUrl.searchParams.append('after', nextId)
         return this.http.jsonp(cleanUrl.href, 'jsonp').pipe(
-            tap((data: any) => (this.nextId = data.data.after)),
-            tap((data: any) => (this.hasMore = !!data.data.after)),
-            map((data: any) =>
-                data.data.children.map((post: any) => post.data)
-            ),
-            retryWhen((err) =>
-                err.pipe(
-                    delay(500),
-                    take(3)
-                )
-            )
+            map((data) => (data as RedditData))
         )
     }
 }

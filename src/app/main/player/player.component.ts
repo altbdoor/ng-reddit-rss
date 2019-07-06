@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 })
 export class PlayerComponent implements OnInit {
     gfyId = ''
+
     constructor(private route: ActivatedRoute, private router: Router) {}
 
     ngOnInit() {

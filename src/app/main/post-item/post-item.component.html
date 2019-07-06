@@ -1,6 +1,6 @@
 <div
     class="post-item p-1 d-flex flex-row"
-    (click)="showPost($event, $event.target, gfyId)"
+    (click)="showPost($event, $event.target, post.gfyId)"
 >
     <div
         class="post-item__img d-flex flex-shrink-0"
@@ -8,7 +8,7 @@
     ></div>
     <div class="d-flex flex-column ml-2">
         <div class="post-item__title small font-weight-bold mb-1">
-            {{ postTitle }}
+            {{ post.title }}
         </div>
         <div class="mt-auto">
             <a
@@ -23,7 +23,7 @@
                 target="_blank"
                 rel="noreferrer"
                 class="badge px-2 post-item__badge-gfycat"
-                [href]="'https://gfycat.com/' + gfyId"
+                [href]="'https://gfycat.com/' + post.gfyId"
             >
                 Gfycat
             </a>
