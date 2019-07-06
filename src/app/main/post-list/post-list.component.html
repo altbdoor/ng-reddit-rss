@@ -1,5 +1,5 @@
 <div class="list-group">
-    <div class="list-group-item p-0" *ngFor="let post of (postList$ | async)">
+    <div class="list-group-item p-0" *ngFor="let post of postList$ | async">
         <app-post-item [post]="post"></app-post-item>
     </div>
 
@@ -8,10 +8,7 @@
             class="progress-bar progress-bar-striped progress-bar-animated w-100"
         ></div>
     </div>
-    <div
-        class="alert alert-info mt-3 text-center"
-        *ngIf="!hasMore && !loading"
-    >
+    <div class="alert alert-info mt-3 text-center" *ngIf="!hasMore && !loading">
         No more posts!
     </div>
     <div class="alert alert-danger mt-3 text-center" *ngIf="!loading && error">

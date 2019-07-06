@@ -1,15 +1,25 @@
 import { Component, OnInit, Inject } from '@angular/core'
 import { DOCUMENT } from '@angular/common'
 import { fromEvent, Observable, EMPTY } from 'rxjs'
-import { debounceTime, filter, switchMap, map, finalize, catchError, tap, scan, startWith } from 'rxjs/operators'
+import {
+    debounceTime,
+    filter,
+    switchMap,
+    map,
+    finalize,
+    catchError,
+    tap,
+    scan,
+    startWith,
+} from 'rxjs/operators'
 import { WINDOW } from 'ngx-window-token'
 import * as he from 'he'
 
 import { environment } from 'src/environments/environment'
-import { LocalStorageService } from 'src/app/local-storage.service'
-import { ApiService } from 'src/app/api.service'
+import { LocalStorageService } from 'src/app/services/local-storage.service'
+import { ApiService } from 'src/app/services/api.service'
 import { PostItem } from 'src/app/models/post_item'
-import { RedditData } from 'src/app/models/reddit';
+import { RedditData } from 'src/app/models/reddit'
 
 @Component({
     selector: 'app-post-list',
@@ -40,11 +50,12 @@ export class PostListComponent implements OnInit {
         const scrollEvt$ = fromEvent(this.window, 'scroll').pipe(
             debounceTime(200),
             filter(() => {
-                const viewportHeight = this.window.pageYOffset + this.window.innerHeight
+                const viewportHeight =
+                    this.window.pageYOffset + this.window.innerHeight
                 const pageHeight = this.document.body.clientHeight - 200
                 return viewportHeight >= pageHeight
             }),
-            filter(() => (!this.loading && !this.error && this.hasMore)),
+            filter(() => !this.loading && !this.error && this.hasMore)
         )
 
         this.postList$ = scrollEvt$.pipe(
@@ -65,8 +76,8 @@ export class PostListComponent implements OnInit {
             }),
             map((data) => this.convertPostItem(data)),
             scan((acc: PostItem[], val) => {
-                const accIdList = acc.map(post => post.id)
-                val = val.filter(post => !accIdList.includes(post.id))
+                const accIdList = acc.map((post) => post.id)
+                val = val.filter((post) => !accIdList.includes(post.id))
                 return acc.concat(val)
             }, [])
         )
@@ -77,7 +88,10 @@ export class PostListComponent implements OnInit {
             .map((post) => post.data)
             .filter((post) => {
                 try {
-                    return post.secure_media.oembed.provider_name.toLowerCase() === 'gfycat'
+                    return (
+                        post.secure_media.oembed.provider_name.toLowerCase() ===
+                        'gfycat'
+                    )
                 } catch (e) {}
 
                 return false

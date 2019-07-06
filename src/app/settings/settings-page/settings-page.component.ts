@@ -4,7 +4,7 @@ import { Subject, Subscription } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 
 import { environment } from 'src/environments/environment'
-import { LocalStorageService } from 'src/app/local-storage.service'
+import { LocalStorageService } from 'src/app/services/local-storage.service'
 
 @Component({
     selector: 'app-settings-page',
