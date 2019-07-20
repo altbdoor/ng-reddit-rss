@@ -90,7 +90,7 @@ export class PostListComponent implements OnInit {
                 try {
                     return (
                         post.secure_media.oembed.provider_name.toLowerCase() ===
-                        'gfycat'
+                            'gfycat' && !!post.secure_media.oembed.thumbnail_url
                     )
                 } catch (e) {}
 
