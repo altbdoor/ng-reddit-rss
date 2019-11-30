@@ -88,13 +88,30 @@ export class PostListComponent implements OnInit {
             .map((post) => post.data)
             .filter((post) => {
                 try {
-                    return (
-                        post.secure_media.oembed.provider_name.toLowerCase() ===
-                            'gfycat' && !!post.secure_media.oembed.thumbnail_url
-                    )
+                    if (post.secure_media) {
+                        return (
+                            post.secure_media.oembed.provider_name.toLowerCase() ===
+                                'gfycat' && !!post.secure_media.oembed.thumbnail_url
+                        )
+                    }
+
+                    if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
+                        const parentPost = post.crosspost_parent_list[0]
+                        return (
+                            parentPost.secure_media.oembed.provider_name.toLowerCase() ===
+                            'gfycat' && !!parentPost.secure_media.oembed.thumbnail_url
+                        )
+                    }
                 } catch (e) {}
 
                 return false
+            })
+            .map((post) => {
+                if (post.secure_media) {
+                    return post
+                }
+
+                return post.crosspost_parent_list[0]
             })
             .map((post) => {
                 const postId = `${post.subreddit_id}-${post.id}`
