@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
+import { ApiService } from 'src/app/services/api.service'
 
 @Component({
     selector: 'app-player',
@@ -7,13 +8,11 @@ import { ActivatedRoute, Router } from '@angular/router'
     styleUrls: ['./player.component.css'],
 })
 export class PlayerComponent implements OnInit {
-    gfyId = ''
+    gfyData$ = this.apiService.getGfycatData(this.route.snapshot.params.gfyId)
 
-    constructor(private route: ActivatedRoute, private router: Router) {}
+    constructor(private route: ActivatedRoute, private router: Router, private apiService: ApiService) {}
 
-    ngOnInit() {
-        this.gfyId = this.route.snapshot.params.gfyId
-    }
+    ngOnInit() {}
 
     dismiss(target: HTMLElement) {
         if (!target.closest('.player__video')) {

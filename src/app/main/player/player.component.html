@@ -9,19 +9,21 @@
             [routerLink]="[{ outlets: { modal: null } }]"
             >&times;</a
         >
-        <video
-            class="player__video"
-            preload="auto"
-            controls
-            loop
-            [muted]="true"
-            playsinline
-            autoplay
-        >
-            <source
-                [src]="'https://thumbs.gfycat.com/' + gfyId + '-mobile.mp4'"
-                type="video/mp4"
-            />
-        </video>
+        <ng-container *ngIf="(gfyData$ | async) as gfyData">
+            <video
+                class="player__video"
+                preload="auto"
+                controls
+                loop
+                [muted]="true"
+                playsinline
+                autoplay
+            >
+                <source
+                    [src]="gfyData.url"
+                    type="video/mp4"
+                />
+            </video>
+        </ng-container>
     </div>
 </div>

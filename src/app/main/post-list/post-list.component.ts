@@ -1,25 +1,14 @@
-import { Component, OnInit, Inject } from '@angular/core'
 import { DOCUMENT } from '@angular/common'
-import { fromEvent, Observable, EMPTY } from 'rxjs'
-import {
-    debounceTime,
-    filter,
-    switchMap,
-    map,
-    finalize,
-    catchError,
-    tap,
-    scan,
-    startWith,
-} from 'rxjs/operators'
-import { WINDOW } from 'ngx-window-token'
+import { Component, Inject, OnInit } from '@angular/core'
 import * as he from 'he'
-
-import { environment } from 'src/environments/environment'
-import { LocalStorageService } from 'src/app/services/local-storage.service'
-import { ApiService } from 'src/app/services/api.service'
+import { WINDOW } from 'ngx-window-token'
+import { EMPTY, fromEvent, Observable } from 'rxjs'
+import { catchError, debounceTime, filter, finalize, map, scan, startWith, switchMap, tap } from 'rxjs/operators'
 import { PostItem } from 'src/app/models/post_item'
 import { RedditData } from 'src/app/models/reddit'
+import { ApiService } from 'src/app/services/api.service'
+import { LocalStorageService } from 'src/app/services/local-storage.service'
+import { environment } from 'src/environments/environment'
 
 @Component({
     selector: 'app-post-list',
@@ -86,48 +75,15 @@ export class PostListComponent implements OnInit {
     convertPostItem(data: RedditData): PostItem[] {
         return data.data.children
             .map((post) => post.data)
-            .filter((post) => {
-                try {
-                    if (post.secure_media) {
-                        return (
-                            post.secure_media.oembed.provider_name.toLowerCase() ===
-                                'gfycat' && !!post.secure_media.oembed.thumbnail_url
-                        )
-                    }
-
-                    if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
-                        const parentPost = post.crosspost_parent_list[0]
-                        return (
-                            parentPost.secure_media.oembed.provider_name.toLowerCase() ===
-                            'gfycat' && !!parentPost.secure_media.oembed.thumbnail_url
-                        )
-                    }
-                } catch (e) {}
-
-                return false
-            })
+            .filter((post) => post.url.toLowerCase().includes('https://gfycat.com/'))
             .map((post) => {
-                if (post.secure_media) {
-                    return post
-                }
-
-                return post.crosspost_parent_list[0]
-            })
-            .map((post) => {
-                const postId = `${post.subreddit_id}-${post.id}`
-                const thumbnailUrl = post.secure_media.oembed.thumbnail_url
-                const gfyId = thumbnailUrl.replace(
-                    /(.+?thumbs\.gfycat\.com(%2F|\/)|-size_restricted.+)/g,
-                    ''
-                )
-
                 return {
-                    id: postId,
-                    gfyId,
+                    id: `${post.subreddit_id}-${post.id}`,
+                    gfyId: post.url.replace('https://gfycat.com/', ''),
                     title: he.decode(post.title),
                     thumbnail: post.thumbnail,
                     permalink: post.permalink,
-                } as PostItem
+                }
             })
     }
 }
