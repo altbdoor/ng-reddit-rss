@@ -10,7 +10,11 @@ import { ApiService } from 'src/app/services/api.service'
 export class PlayerComponent implements OnInit {
     gfyData$ = this.apiService.getGfycatData(this.route.snapshot.params.gfyId)
 
-    constructor(private route: ActivatedRoute, private router: Router, private apiService: ApiService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private apiService: ApiService
+    ) {}
 
     ngOnInit() {}
 

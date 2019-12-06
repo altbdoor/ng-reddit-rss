@@ -3,9 +3,19 @@ import { Component, Inject, OnInit } from '@angular/core'
 import * as he from 'he'
 import { WINDOW } from 'ngx-window-token'
 import { EMPTY, fromEvent, Observable } from 'rxjs'
-import { catchError, debounceTime, filter, finalize, map, scan, startWith, switchMap, tap } from 'rxjs/operators'
+import {
+    catchError,
+    debounceTime,
+    filter,
+    finalize,
+    map,
+    scan,
+    startWith,
+    switchMap,
+    tap,
+} from 'rxjs/operators'
 import { PostItem } from 'src/app/models/post_item'
-import { RedditData } from 'src/app/models/reddit'
+import { RedditApiData } from 'src/app/models/reddit'
 import { ApiService } from 'src/app/services/api.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service'
 import { environment } from 'src/environments/environment'
@@ -72,18 +82,18 @@ export class PostListComponent implements OnInit {
         )
     }
 
-    convertPostItem(data: RedditData): PostItem[] {
+    convertPostItem(data: RedditApiData): PostItem[] {
         return data.data.children
             .map((post) => post.data)
-            .filter((post) => post.url.toLowerCase().includes('https://gfycat.com/'))
-            .map((post) => {
-                return {
-                    id: `${post.subreddit_id}-${post.id}`,
-                    gfyId: post.url.replace('https://gfycat.com/', ''),
-                    title: he.decode(post.title),
-                    thumbnail: post.thumbnail,
-                    permalink: post.permalink,
-                }
-            })
+            .filter((post) =>
+                post.url.toLowerCase().includes('https://gfycat.com/')
+            )
+            .map((post) => ({
+                id: `${post.subreddit_id}-${post.id}`,
+                gfyId: post.url.replace('https://gfycat.com/', ''),
+                title: he.decode(post.title),
+                thumbnail: post.thumbnail,
+                permalink: post.permalink,
+            }))
     }
 }

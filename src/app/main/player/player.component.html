@@ -1,15 +1,15 @@
 <div class="modal-backdrop show"></div>
-<div
-    class="modal show d-flex align-items-center justify-content-center"
-    (click)="dismiss($event.target)"
->
-    <div class="position-relative">
-        <a
-            class="player__close position-absolute btn btn-danger btn-lg py-0"
-            [routerLink]="[{ outlets: { modal: null } }]"
-            >&times;</a
-        >
-        <ng-container *ngIf="(gfyData$ | async) as gfyData">
+<ng-container *ngIf="gfyData$ | async as gfyData">
+    <div
+        class="modal show d-flex align-items-center justify-content-center"
+        (click)="dismiss($event.target)"
+    >
+        <div class="position-relative">
+            <a
+                class="player__close position-absolute btn btn-danger btn-lg py-0"
+                [routerLink]="[{ outlets: { modal: null } }]"
+                >&times;</a
+            >
             <video
                 class="player__video"
                 preload="auto"
@@ -19,11 +19,9 @@
                 playsinline
                 autoplay
             >
-                <source
-                    [src]="gfyData.url"
-                    type="video/mp4"
-                />
+                <source [src]="gfyData.mp4" type="video/mp4" />
+                <source [src]="gfyData.webm" type="video/webm" />
             </video>
-        </ng-container>
+        </div>
     </div>
-</div>
+</ng-container>

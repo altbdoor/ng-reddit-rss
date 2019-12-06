@@ -1,6 +1,6 @@
 // https://jvilk.com/MakeTypes/
 
-export interface GfycatData {
+export interface GfycatApiData {
     gfyItem: GfyItem
 }
 interface GfyItem {

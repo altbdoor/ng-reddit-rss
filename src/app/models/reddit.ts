@@ -1,6 +1,6 @@
 // https://jvilk.com/MakeTypes/
 
-export interface RedditData {
+export interface RedditApiData {
     kind: string
     data: Data
 }
