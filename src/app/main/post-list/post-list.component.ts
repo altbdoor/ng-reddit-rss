@@ -85,12 +85,10 @@ export class PostListComponent implements OnInit {
     convertPostItem(data: RedditApiData): PostItem[] {
         return data.data.children
             .map((post) => post.data)
-            .filter((post) =>
-                post.url.toLowerCase().includes('https://gfycat.com/')
-            )
+            .filter((post) => post.url.startsWith('https://gfycat.com/'))
             .map((post) => ({
                 id: `${post.subreddit_id}-${post.id}`,
-                gfyId: post.url.replace('https://gfycat.com/', ''),
+                gfyId: post.url.replace('https://gfycat.com/', '').replace('gifs/detail/', ''),
                 title: he.decode(post.title),
                 thumbnail: post.thumbnail,
                 permalink: post.permalink,
