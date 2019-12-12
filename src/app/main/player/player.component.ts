@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { ApiService } from 'src/app/services/api.service'
+import { Observable } from 'rxjs'
+import { ApiService, GfycatData } from 'src/app/services/api.service'
 
 @Component({
     selector: 'app-player',
@@ -8,13 +9,17 @@ import { ApiService } from 'src/app/services/api.service'
     styleUrls: ['./player.component.css'],
 })
 export class PlayerComponent implements OnInit {
-    gfyData$ = this.apiService.getGfycatData(this.route.snapshot.params.gfyId)
+    gfyData$: Observable<GfycatData>
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private apiService: ApiService
-    ) {}
+    ) {
+        this.gfyData$ = apiService.getGfycatData(
+            this.route.snapshot.params.gfyId
+        )
+    }
 
     ngOnInit() {}
 

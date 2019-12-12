@@ -5,7 +5,7 @@ import { map, tap } from 'rxjs/operators'
 import { GfycatApiData } from '../models/gfycat'
 import { RedditApiData } from '../models/reddit'
 
-interface GfycatData {
+export interface GfycatData {
     id: string
     mp4: string
     webm: string

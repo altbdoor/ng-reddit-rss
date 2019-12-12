@@ -1,10 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
-import { FormBuilder, Validators, FormGroup } from '@angular/forms'
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { Subject, Subscription } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
-
-import { environment } from 'src/environments/environment'
 import { LocalStorageService } from 'src/app/services/local-storage.service'
+import { environment } from 'src/environments/environment'
 
 @Component({
     selector: 'app-settings-page',
@@ -12,16 +11,18 @@ import { LocalStorageService } from 'src/app/services/local-storage.service'
     styleUrls: ['./settings-page.component.css'],
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
-    form = this.fb.group({
-        url: ['', Validators.required],
-    })
+    form: FormGroup
 
     showSavedMessage = false
     saveTimeout = new Subject<null>()
     saveTimeout$ = this.saveTimeout.asObservable()
     saveTimeoutSub: Subscription
 
-    constructor(private local: LocalStorageService, private fb: FormBuilder) {}
+    constructor(private local: LocalStorageService, private fb: FormBuilder) {
+        this.form = this.fb.group({
+            url: ['', Validators.required],
+        })
+    }
 
     ngOnInit() {
         let settings = this.local.get('settings-data')

@@ -88,7 +88,11 @@ export class PostListComponent implements OnInit {
             .filter((post) => post.url.startsWith('https://gfycat.com/'))
             .map((post) => ({
                 id: `${post.subreddit_id}-${post.id}`,
-                gfyId: post.url.replace('https://gfycat.com/', '').replace('gifs/detail/', '').split('-').shift(),
+                gfyId: post.url
+                    .replace('https://gfycat.com/', '')
+                    .replace('gifs/detail/', '')
+                    .split('-')
+                    .shift(),
                 title: he.decode(post.title),
                 thumbnail: post.thumbnail,
                 permalink: post.permalink,
