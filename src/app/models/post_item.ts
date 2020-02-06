@@ -4,4 +4,5 @@ export interface PostItem {
     gfyId: string
     thumbnail: string
     permalink: string
+    possibleGfyId: string
 }

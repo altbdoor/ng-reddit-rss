@@ -86,16 +86,36 @@ export class PostListComponent implements OnInit {
         return data.data.children
             .map((post) => post.data)
             .filter((post) => post.url.startsWith('https://gfycat.com/'))
-            .map((post) => ({
-                id: `${post.subreddit_id}-${post.id}`,
-                gfyId: post.url
+            .map((post) => {
+                let possibleGfyId = '-'
+                const gfyId = post.url
                     .replace('https://gfycat.com/', '')
                     .replace('gifs/detail/', '')
                     .split('-')
-                    .shift(),
-                title: he.decode(post.title),
-                thumbnail: post.thumbnail,
-                permalink: post.permalink,
-            }))
+                    .shift()
+
+                try {
+                    const possibleMatch = decodeURIComponent(
+                        post.secure_media_embed.content
+                    ).match(/thumbs\.gfycat\.com\/(.+?)-size_restricted\.gif/)
+
+                    if (
+                        possibleMatch &&
+                        possibleMatch[1] &&
+                        possibleMatch[1] !== gfyId
+                    ) {
+                        possibleGfyId = possibleMatch[1]
+                    }
+                } catch (err) {}
+
+                return {
+                    id: `${post.subreddit_id}-${post.id}`,
+                    gfyId,
+                    title: he.decode(post.title),
+                    thumbnail: post.thumbnail,
+                    permalink: post.permalink,
+                    possibleGfyId,
+                }
+            })
     }
 }

@@ -15,10 +15,16 @@ export class PostItemComponent implements OnInit {
 
     ngOnInit() {}
 
-    showPost(event: Event, target: HTMLElement, gfyId: string) {
+    showPost(event: Event, target: HTMLElement, post: PostItem) {
         if (!target.closest('.badge')) {
             event.preventDefault()
-            this.router.navigate([{ outlets: { modal: ['play', gfyId] } }])
+            this.router.navigate([
+                {
+                    outlets: {
+                        modal: ['play', post.gfyId, post.possibleGfyId],
+                    },
+                },
+            ])
         }
     }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
 import { ApiService, GfycatData } from 'src/app/services/api.service'
 
 @Component({
@@ -14,11 +14,18 @@ export class PlayerComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private apiService: ApiService
+        apiService: ApiService
     ) {
-        this.gfyData$ = apiService.getGfycatData(
-            this.route.snapshot.params.gfyId
-        )
+        const { gfyId, possibleGfyId } = this.route.snapshot.params
+        if (possibleGfyId !== '-') {
+            this.gfyData$ = of({
+                id: possibleGfyId,
+                mp4: `https://thumbs.gfycat.com/${possibleGfyId}-mobile.mp4`,
+                webm: `https://giant.gfycat.com/${possibleGfyId}.webm`,
+            })
+        } else {
+            this.gfyData$ = apiService.getGfycatData(gfyId)
+        }
     }
 
     ngOnInit() {}

@@ -19,7 +19,7 @@ const routes: Routes = [
         outlet: 'modal',
         children: [
             {
-                path: 'play/:gfyId',
+                path: 'play/:gfyId/:possibleGfyId',
                 component: PlayerComponent,
             },
         ],
