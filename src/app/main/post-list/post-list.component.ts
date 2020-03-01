@@ -91,6 +91,7 @@ export class PostListComponent implements OnInit {
                 const gfyId = post.url
                     .replace('https://gfycat.com/', '')
                     .replace('gifs/detail/', '')
+                    .replace('.gif', '')
                     .split('-')
                     .shift()
 
