@@ -1,16 +1,19 @@
-import { DOCUMENT } from '@angular/common'
-import { Component, Inject, OnInit } from '@angular/core'
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core'
 import * as he from 'he'
-import { WINDOW } from 'ngx-window-token'
-import { EMPTY, fromEvent, Observable } from 'rxjs'
+import { EMPTY, Observable, Subject } from 'rxjs'
 import {
     catchError,
-    debounceTime,
     filter,
     finalize,
     map,
     scan,
-    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators'
@@ -25,7 +28,7 @@ import { environment } from 'src/environments/environment'
     templateUrl: './post-list.component.html',
     styleUrls: ['./post-list.component.css'],
 })
-export class PostListComponent implements OnInit {
+export class PostListComponent implements OnInit, AfterViewInit, OnDestroy {
     loading = false
     error = false
     hasMore = true
@@ -33,12 +36,12 @@ export class PostListComponent implements OnInit {
 
     postList$: Observable<PostItem[]>
 
-    constructor(
-        @Inject(WINDOW) private window: Window,
-        @Inject(DOCUMENT) private document: Document,
-        private api: ApiService,
-        private local: LocalStorageService
-    ) {}
+    @ViewChild('loadingBlock', { static: false })
+    loadingBlock: ElementRef
+    scrollObserver: IntersectionObserver
+    scrollBottom$ = new Subject()
+
+    constructor(private api: ApiService, private local: LocalStorageService) {}
 
     ngOnInit() {
         let settings = this.local.get('settings-data')
@@ -46,19 +49,8 @@ export class PostListComponent implements OnInit {
             settings = environment.defaultSettings
         }
 
-        const scrollEvt$ = fromEvent(this.window, 'scroll').pipe(
-            debounceTime(200),
-            filter(() => {
-                const viewportHeight =
-                    this.window.pageYOffset + this.window.innerHeight
-                const pageHeight = this.document.body.clientHeight - 200
-                return viewportHeight >= pageHeight
-            }),
-            filter(() => !this.loading && !this.error && this.hasMore)
-        )
-
-        this.postList$ = scrollEvt$.pipe(
-            startWith(0),
+        this.postList$ = this.scrollBottom$.asObservable().pipe(
+            filter(() => !this.loading && !this.error && this.hasMore),
             switchMap(() => {
                 this.loading = true
                 return this.api.getNewPosts(settings.url, this.nextId).pipe(
@@ -82,6 +74,26 @@ export class PostListComponent implements OnInit {
         )
     }
 
+    ngAfterViewInit() {
+        this.scrollObserver = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    this.scrollBottom$.next()
+                }
+            },
+            {
+                root: null,
+                rootMargin: '0px 0px 300px 0px',
+            }
+        )
+
+        this.scrollObserver.observe(this.loadingBlock.nativeElement)
+    }
+
+    ngOnDestroy() {
+        this.scrollObserver.disconnect()
+    }
+
     convertPostItem(data: RedditApiData): PostItem[] {
         return data.data.children
             .map((post) => post.data)
@@ -95,19 +107,25 @@ export class PostListComponent implements OnInit {
                     .split('-')
                     .shift()
 
-                try {
-                    const possibleMatch = decodeURIComponent(
-                        post.secure_media_embed.content
-                    ).match(/thumbs\.gfycat\.com\/(.+?)-size_restricted\.gif/)
+                if (gfyId.toLowerCase() !== gfyId) {
+                    possibleGfyId = gfyId
+                } else {
+                    try {
+                        const possibleMatch = decodeURIComponent(
+                            post.secure_media_embed.content
+                        ).match(
+                            /thumbs\.gfycat\.com\/(.+?)-size_restricted\.gif/
+                        )
 
-                    if (
-                        possibleMatch &&
-                        possibleMatch[1] &&
-                        possibleMatch[1] !== gfyId
-                    ) {
-                        possibleGfyId = possibleMatch[1]
-                    }
-                } catch (err) {}
+                        if (
+                            possibleMatch &&
+                            possibleMatch[1] &&
+                            possibleMatch[1] !== gfyId
+                        ) {
+                            possibleGfyId = possibleMatch[1]
+                        }
+                    } catch (err) {}
+                }
 
                 return {
                     id: `${post.subreddit_id}-${post.id}`,
