@@ -83,7 +83,7 @@ export class PostListComponent implements OnInit, AfterViewInit, OnDestroy {
             },
             {
                 root: null,
-                rootMargin: '0px 0px 300px 0px',
+                rootMargin: '0px 0px 400px 0px',
             }
         )
 
@@ -97,13 +97,18 @@ export class PostListComponent implements OnInit, AfterViewInit, OnDestroy {
     convertPostItem(data: RedditApiData): PostItem[] {
         return data.data.children
             .map((post) => post.data)
-            .filter((post) => post.url.startsWith('https://gfycat.com/'))
+            .filter((post) =>
+                post.url.startsWith('https://gfycat.com/') ||
+                post.url.startsWith('https://redgifs.com/')
+            )
             .map((post) => {
                 let possibleGfyId = '-'
                 const gfyId = post.url
                     .replace('https://gfycat.com/', '')
                     .replace('gifs/detail/', '')
                     .replace('.gif', '')
+                    .replace('https://redgifs.com/', '')
+                    .replace('watch/', '')
                     .split('-')
                     .shift()
 
